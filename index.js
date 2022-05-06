@@ -4,6 +4,7 @@ import chalk from "chalk";
 import cors from "cors";
 import dotenv from "dotenv";
 import joi from "joi";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -41,23 +42,29 @@ app.post("/cadastro", async (req, res) => {
     const { nome, senha, senha2 } = req.body;
     const usuario = req.body;
     const validação = cadastroSchema.validate(usuario);
-    console.log(validação);
+    console.log(validação.error);
     // Valida se os dados estão preenchidos corretamente
     if (validação.error) {
         return res.status(422).send("Todos os campos são obrigatórios");
     }
-
-    // valida se as duas senhas são iguais
-    if (senha !== senha2) {
+      // valida se as duas senhas são iguais
+      if (senha !== senha2) {
         return res.status(422).send("A confirmação da senha está incorreta");
     }
 
     try {
         // valida se já existe um nome igual cadastrado
         const verificaUsuario = await db.collection("usuariosTeste").findOne({nome: nome})
-        if (verificaUsuario) return res.status(422).send("Nome de usuário já existente");
-        await db.collection("usuariosTeste").insertOne(usuario); 
+        console.log(chalk.bold.red(verificaUsuario));
+        if (verificaUsuario) {
+          res.status(422).send("Nome de usuário já existente");
+          return;
+        }
+        // Criptografia da senha
+        const senhaHash = bcrypt.hashSync(senha,10);
+        await db.collection("usuariosTeste").insertOne({...usuario, senha:senhaHash, senha2:""})
     }
+
     catch (error) {
         console.error(error);
         res.status(500).send(chalk.red.bold("Falha no cadastro de usuário novo"))

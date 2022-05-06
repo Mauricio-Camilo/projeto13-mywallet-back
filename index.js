@@ -42,7 +42,6 @@ app.post("/cadastro", async (req, res) => {
     const { nome, senha, senha2 } = req.body;
     const usuario = req.body;
     const validação = cadastroSchema.validate(usuario);
-    console.log(validação.error);
     // Valida se os dados estão preenchidos corretamente
     if (validação.error) {
         return res.status(422).send("Todos os campos são obrigatórios");
@@ -72,7 +71,7 @@ app.post("/cadastro", async (req, res) => {
     res.sendStatus(201);
 })
 
-app.post("/",(req,res) => {
+app.post("/", async (req,res) => {
     const loginSchema = joi.object({
         login: joi.string().required(),
         senha: joi.string().required(),
@@ -80,8 +79,23 @@ app.post("/",(req,res) => {
     const {login, senha} = req.body;
     const validação = loginSchema.validate(req.body)
     if (validação.error) return res.status(422).send("Todos os campos são obrigatórios");
-    res.sendStatus(201);
-})
+    try {
+       // comparação de senhas criptografadas 
+      const user = await db.collection("usuariosTeste").findOne({nome: login})
+      if (user && bcrypt.compareSync(senha, user.senha)) {
+          console.log(chalk.bold.blue("Deu certo a comparação de senhas"))
+          res.sendStatus(201);
+      }
+      else {
+        return res.status(422).send("Senha incorreta");
+      }
+    }
+
+    catch (error) {
+        console.error(error);
+        res.status(500).send(chalk.red.bold("Falha na execução do login"))
+    }
+    })
 
 app.listen(Port, () => {
     console.log(chalk.bold.blue(`Servidor conectado na porta ${Port}`))

@@ -63,8 +63,18 @@ app.post("/cadastro", async (req, res) => {
         res.status(500).send(chalk.red.bold("Falha no cadastro de usuário novo"))
     }
     res.sendStatus(201);
-}
-)
+})
+
+app.post("/",(req,res) => {
+    const loginSchema = joi.object({
+        login: joi.string().required(),
+        senha: joi.string().required(),
+    })
+    const {login, senha} = req.body;
+    const validação = loginSchema.validate(req.body)
+    if (validação.error) return res.status(422).send("Todos os campos são obrigatórios");
+    res.sendStatus(201);
+})
 
 app.listen(Port, () => {
     console.log(chalk.bold.blue(`Servidor conectado na porta ${Port}`))

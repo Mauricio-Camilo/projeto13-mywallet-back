@@ -38,14 +38,29 @@ app.post("/cadastro", async (req, res) => {
         senha2: joi.string().required()
     })
 
-    const { nome, email, senha, senha2 } = req.body;
-    const validação = cadastroSchema.validate(req.body);
+    const { nome, senha, senha2 } = req.body;
+    const usuario = req.body;
+    const validação = cadastroSchema.validate(usuario);
     console.log(validação);
+    // Valida se os dados estão preenchidos corretamente
     if (validação.error) {
         return res.status(422).send("Todos os campos são obrigatórios");
     }
+
+    // valida se as duas senhas são iguais
     if (senha !== senha2) {
         return res.status(422).send("A confirmação da senha está incorreta");
+    }
+
+    try {
+        // valida se já existe um nome igual cadastrado
+        const verificaUsuario = await db.collection("usuariosTeste").findOne({nome: nome})
+        if (verificaUsuario) return res.status(422).send("Nome de usuário já existente");
+        await db.collection("usuariosTeste").insertOne(usuario); 
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).send(chalk.red.bold("Falha no cadastro de usuário novo"))
     }
     res.sendStatus(201);
 }

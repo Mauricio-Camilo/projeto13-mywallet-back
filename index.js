@@ -6,30 +6,15 @@ import dotenv from "dotenv";
 import joi from "joi";
 import bcrypt from "bcrypt";
 import {v4} from "uuid";
+import db from "./db.js"
 
 dotenv.config();
 
 const Port = process.env.PORT;
-const Database = process.env.DATABASE;
-const MongoURL = process.env.MONGO_URL;
 
 const app = express();
 app.use(cors());
 app.use(json());
-
-// CRIAR UM ARQUIVO SEPARADO PARA CONECTAR COM O BANCO DE DADOS
-
-let db = null;
-const mongoClient = new MongoClient(MongoURL);
-try {
-    await mongoClient.connect();
-    db = mongoClient.db(Database);
-    console.log(chalk.bold.green("Banco de dados conectado, show!!"))
-}
-catch (e) {
-    console.log(e);
-    // res.status(500).send(chalk.red.bold("Falha na conexão com o banco"))
-}
 
 app.post("/cadastro", async (req, res) => {
 
@@ -114,3 +99,41 @@ app.post("/", async (req,res) => {
 app.listen(Port, () => {
     console.log(chalk.bold.blue(`Servidor conectado na porta ${Port}`))
 }) 
+
+app.get("/posts", async (req,res) => { 
+
+    const { authorization } = req.header; // `Bearer código do token` 
+    
+    // 1a validação: Verifica se o token é válido 
+    
+    const token = authorization?.replace('Bearer ', '').trim(); // Filtra para aparecer só o token 
+    
+    if(!token) return res.sendStatus(401); 
+    
+    // 2a validação: Verifica se o token existe na coleção dos tokens 
+    
+    const session = await db.collections("sessions").findOne({ token }); 
+    
+    if (!session) return res.sendStatus(401); 
+    
+    // 3a validação: Busca os dados do usuário associado ao token na coleção de informações 
+    
+    const user = await db.collections("users"). 
+    
+    findOne({_id: session.userId}) 
+    
+    if(user) { 
+    
+    // Deleta a informação da senha antes de devolver para o front 
+    
+    delete user.password; 
+    
+    res.send(user); 
+    
+    } else { 
+    
+    res.sendStatus(401); 
+    
+    } 
+    
+    }); 

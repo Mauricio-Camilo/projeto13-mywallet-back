@@ -3,6 +3,7 @@ import { MongoClient, ObjectId } from "mongodb";
 import chalk from "chalk";
 import cors from "cors";
 import dotenv from "dotenv";
+import joi from "joi";
 
 dotenv.config();
 
@@ -29,8 +30,23 @@ catch (e) {
 }
 
 app.post("/cadastro", async (req, res) => {
-    const { nome, email, senha, confirmação } = req.body;
-    console.log(nome, email, senha, confirmação);
+
+    const cadastroSchema = joi.object({
+        nome: joi.string().required(),
+        email: joi.string().required(),
+        senha: joi.string().required(),
+        senha2: joi.string().required()
+    })
+
+    const { nome, email, senha, senha2 } = req.body;
+    const validação = cadastroSchema.validate(req.body);
+    console.log(validação);
+    if (validação.error) {
+        return res.status(422).send("Todos os campos são obrigatórios");
+    }
+    if (senha !== senha2) {
+        return res.status(422).send("A confirmação da senha está incorreta");
+    }
     res.sendStatus(201);
 }
 )

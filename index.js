@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 // import db from "./db.js";
 import cadastroRouter from "./routes/cadastroRouter.js";
 import db from "./db.js";
+import dayjs from "dayjs";
+
 // import {postCadastro} from "./controllers/cadastroController.js"
 // import {postLogin} from "./controllers/loginController.js"
 
@@ -38,7 +40,6 @@ app.get("/registros", async (req, res) => {
         const user = await db.collection("usuariosTeste").findOne({_id: session.userId});
         console.log(chalk.bold.blue(user));
         if (user) {
-            console.log("Passou na terceira validação");
             delete user.senha; 
             delete user.senha2;
             return res.send(user).status(201);;
@@ -52,7 +53,33 @@ app.get("/registros", async (req, res) => {
 });
 
 app.post("/entrada", async(req,res) => {
-    
+    const { authorization } = req.headers;
+    const token = authorization?.replace('Bearer', '').trim();
+    // 1a validação: Verifica se o token é válido 
+    if (!token) return res.send("Token inexistente").status(401);
+    else console.log("Passou na primeira validação")
+    try {
+    // 2a validação: Verifica se o token existe na coleção dos tokens 
+        const session = await db.collection("sessions").findOne({token})
+        if (!session) return res.sendStatus(401); 
+        else console.log("Passou na segunda validação")
+
+    const {usuario, valor, descricao, status} = req.body;
+    console.log(req.body);
+    const registro = {
+        usuario,
+        data: dayjs().format('DD/MM'),
+        valor,
+        descricao,
+        status,
+    }
+        await db.collection("registros").insertOne(registro);
+        res.send("Entrada cadastrada").status(201);
+}
+    catch (error) {
+        console.error(error);
+        res.status(500).send(chalk.red.bold("Falha no cadastro de uma entrada"))
+    }
 })
 
 app.listen(Port, () => {

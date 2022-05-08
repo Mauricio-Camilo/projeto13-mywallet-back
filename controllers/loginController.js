@@ -14,11 +14,10 @@ export async function postLogin (req,res) {
     if (validação.error) return res.status(422).send("Todos os campos são obrigatórios");
     try {
        // comparação de senhas criptografadas 
-      const user = await db.collection("usuariosTeste").findOne({nome: login});
+      const user = await db.collection("usuariosTeste").findOne({email: login});
       if (!user) return res.status(422).send("Usuário inexistente");
       if (user && bcrypt.compareSync(senha, user.senha)) {
-          console.log(chalk.bold.blue("Deu certo a comparação de senhas"));
-
+          console.log(chalk.bold.green("Deu certo a comparação de senhas"));
           // Criação do token
           const token = v4();
           console.log("token: ", token);
@@ -27,7 +26,7 @@ export async function postLogin (req,res) {
               token
           })
           const data = {
-              usuario: login,
+              usuario: user.nome,
               token,
               id: user._id
           }

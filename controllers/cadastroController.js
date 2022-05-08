@@ -11,7 +11,7 @@ export async function postCadastro (req, res) {
             senha2: joi.string().required()
         })
     
-        const { nome, senha, senha2 } = req.body;
+        const { email, senha, senha2 } = req.body;
         const usuario = req.body;
         const validação = cadastroSchema.validate(usuario);
         // Valida se os dados estão preenchidos corretamente
@@ -25,10 +25,10 @@ export async function postCadastro (req, res) {
 
         try {
             // valida se já existe um nome igual cadastrado
-            const verificaUsuario = await db.collection("usuariosTeste").findOne({nome: nome})
+            const verificaUsuario = await db.collection("usuariosTeste").findOne({email: email})
             console.log(chalk.bold.red(verificaUsuario));
             if (verificaUsuario) {
-              res.status(422).send("Nome de usuário já existente");
+              res.status(422).send("Email de usuário já existente");
               return;
             }
             // Criptografia da senha

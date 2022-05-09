@@ -12,11 +12,11 @@ const mongoClient = new MongoClient(MongoURL);
 try {
     await mongoClient.connect();
     db = mongoClient.db(Database);
-    console.log(chalk.bold.green("Banco de dados conectado, show!!"))
+    console.log(chalk.bold.green("Banco de dados conectado com sucesso!!"))
 }
 catch (e) {
     console.log(e);
-    // res.status(500).send(chalk.red.bold("Falha na conexão com o banco"))
+    res.status(500).send(chalk.red.bold("Falha na conexão com o banco"))
 }
 export default db;
 

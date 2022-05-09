@@ -16,8 +16,8 @@ app.use(authRouter);
 app.use(registersRouter);
 
 app.listen(Port, () => {
-    console.log(chalk.bold.blue(`Servidor conectado na porta ${Port}`))
-}) 
+    console.log(chalk.bold.blue(`Servidor conectado na porta com sucesso`))
+})
 
 
 

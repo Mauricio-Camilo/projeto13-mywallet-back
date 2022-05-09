@@ -1,11 +1,10 @@
 import chalk from "chalk";
 import joi from "joi";
 
-
 export async function validarCadastro(req, res, next) {
     const cadastroSchema = joi.object({
         nome: joi.string().required(),
-        email: joi.string().required(),
+        email: joi.string().email().required(),
         senha: joi.string().required(),
         senha2: joi.string().required()
     })

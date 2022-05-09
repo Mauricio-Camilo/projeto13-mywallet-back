@@ -16,7 +16,10 @@ export async function validarToken (req, res, next) {
      // 3a validação: Busca os dados do usuário associado ao token na coleção de informações 
      const user = await db.collection("usuariosTeste").findOne({_id: session.userId});
      if (!user) res.sendStatus(404); 
-     else console.log("Passou na terceira validação")
+     else console.log("Passou na terceira validação");
+
+     res.locals.user = user;
+     
         next();
     }
     catch (error) {

@@ -4,12 +4,8 @@ import joi from "joi";
 import dayjs from "dayjs";
 
 export async function getRegistros(req, res) {
-    const { authorization } = req.headers;
-    const token = authorization?.replace('Bearer', '').trim();
-
+    const {user} = res.locals
     try {
-        const session = await db.collection("sessions").findOne({ token })
-        const user = await db.collection("usuariosTeste").findOne({ _id: session.userId });
         const registro = await db.collection("registros").find({ usuario: user.nome }).toArray();
         return res.send(registro).status(201);
     }
@@ -20,22 +16,6 @@ export async function getRegistros(req, res) {
 }
 
 export async function postEntradas(req, res) {
-        // Validação de joi
-        const entradaSchema = joi.object({
-            usuario: joi.string().required(),
-            valor: joi.number().required(),
-            descricao: joi.string().required(),
-            status: joi.string().required()
-        })
-
-        const validação = entradaSchema.validate(req.body);
-        if (validação.error) {
-            console.log(chalk.bold.red(validação.error));
-            return res.status(422).send("Todos os campos são obrigatórios");
-        }
-        else console.log("Passou na validação do joi");
-
-
         const { usuario, valor, descricao, status } = req.body;
         const registro = {
             usuario,
@@ -55,21 +35,6 @@ export async function postEntradas(req, res) {
 }
 
 export async function postSaidas(req, res) {
-
-        const saidaSchema = joi.object({
-            usuario: joi.string().required(),
-            valor: joi.number().required(),
-            descricao: joi.string().required(),
-            status: joi.string().required()
-        })
-
-        const validação = saidaSchema.validate(req.body);
-        if (validação.error) {
-            console.log(chalk.bold.red(validação.error));
-            return res.status(422).send("Todos os campos são obrigatórios");
-        }
-        else console.log("Passou na validação do joi");
-
         const { usuario, valor, descricao, status } = req.body;
         const registro = {
             usuario,

@@ -14,7 +14,7 @@ export async function getRegistros(req, res) {
     }
 }
 
-export async function postRegistro(req, res) {
+export async function postRegistro(req, res) { 
     const { usuario, valor, descricao, status } = req.body;
     const registro = {
         usuario,
@@ -25,7 +25,7 @@ export async function postRegistro(req, res) {
     }
     try {
         await db.collection("registros").insertOne(registro);
-        res.send("Registro salva com sucesso").status(201);
+        res.send("Registro salva com sucesso").status(201); // Devolver o ID do mongodb
     }
     catch (error) {
         console.error(error);

@@ -6,10 +6,10 @@ export async function validarCadastro(req, res, next) {
         nome: joi.string().required(),
         email: joi.string().email().required(),
         senha: joi.string().required(),
-        senha2: joi.string().required() // Usar joi.ref()
+        senha2: joi.ref('senha'),
     })
     const usuario = req.body;
-    const validação = cadastroSchema.validate(usuario); // Usar o abort Early
+    const validação = cadastroSchema.validate(usuario); 
     if (validação.error) {
         console.log(chalk.bold.red(validação.error));
         return res.status(422).send("Todos os campos são obrigatórios");

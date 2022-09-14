@@ -2,7 +2,7 @@
 
 ## About
 
-This application creates the API used with front-end project.
+This application creates the API used with front-end project in https://github.com/Mauricio-Camilo/projeto13-mywallet-front.
 
 ## Technologies
 
@@ -18,7 +18,13 @@ This application creates the API used with front-end project.
 ```bash
 npm i
 ```
-3. Run the back-end with
+3. Create a .env file with the following fields:
+```bash
+DATABASE=
+PORT=
+MONGO_URL=
+```
+4. Run the back-end with
 ```bash
 npm run dev
 ```
